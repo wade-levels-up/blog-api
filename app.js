@@ -6,11 +6,12 @@ const routes = require("./routes/index");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/user", routes.userRouter);
+app.use("/users", routes.usersRouter);
+app.use("/posts", routes.postsRouter);
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.statusCode || 500).json({ error: err.message });
+app.use((error, req, res, next) => {
+  console.error(error);
+  res.status(error.statusCode || 500).json({ error: error.message });
 });
 
 const PORT = process.env.PORT;

@@ -12,16 +12,30 @@ async function getUserById(id) {
   });
 }
 
-async function addUser(username, password) {
+async function addUser(username, password, email) {
   const hashedPassword = await bcrypt.hash(password, 10);
   await executeWithPrisma(async (prisma) => {
     await prisma.user.create({
       data: {
         username: username,
         password: hashedPassword,
+        email: email,
       },
     });
   });
 }
 
-module.exports = { addUser, getUserById };
+async function addPost(title, content, published, userId) {
+  await executeWithPrisma(async (prisma) => {
+    await prisma.post.create({
+      data: {
+        title: title,
+        content: content,
+        published: published,
+        userId: userId,
+      },
+    });
+  });
+}
+
+module.exports = { addUser, getUserById, addPost };

@@ -1,3 +1,4 @@
-const { userRouter } = require("./user");
+const { usersRouter } = require("./users");
+const { postsRouter } = require("./posts");
 
-module.exports = { userRouter };
+module.exports = { usersRouter, postsRouter };
