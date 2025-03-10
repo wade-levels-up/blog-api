@@ -48,6 +48,16 @@ async function getPosts(userId) {
   });
 }
 
+async function getPost(postId) {
+  return executeWithPrisma(async (prisma) => {
+    return await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+  });
+}
+
 async function deletePost(id) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.delete({
@@ -78,6 +88,7 @@ module.exports = {
   getUserById,
   addPost,
   getPosts,
+  getPost,
   updatePost,
   deletePost,
 };

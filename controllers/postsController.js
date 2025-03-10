@@ -19,9 +19,26 @@ const getPosts = asyncHandler(async (req, res) => {
     const userId = Number(req.body.userId);
 
     const posts = await database.getPosts(userId);
+    if (posts.length === 0) {
+      throw new Error(`No posts for user ${userId} exist`);
+    }
     res.status(200).json({ posts: posts });
   } catch (error) {
     throw new Error(`Unable to get posts | ${error}`);
+  }
+});
+
+const getPost = asyncHandler(async (req, res) => {
+  try {
+    const postId = Number(req.params.postid);
+
+    const post = await database.getPost(postId);
+    if (!post) {
+      throw new Error(`No posts with the ID ${postId} exist`);
+    }
+    res.status(200).json({ post: post });
+  } catch (error) {
+    throw new Error(`Unable to get post | ${error}`);
   }
 });
 
@@ -49,4 +66,4 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { addPost, getPosts, updatePost, deletePost };
+module.exports = { addPost, getPosts, getPost, updatePost, deletePost };
