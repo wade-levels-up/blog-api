@@ -124,6 +124,16 @@ async function getComments(postId) {
   });
 }
 
+async function getComment(commentId) {
+  return await executeWithPrisma(async (prisma) => {
+    return await prisma.comment.findUnique({
+      where: {
+        id: commentId,
+      },
+    });
+  });
+}
+
 async function addComment(userId, postId, content, username) {
   await executeWithPrisma(async (prisma) => {
     await prisma.comment.create({
@@ -132,6 +142,16 @@ async function addComment(userId, postId, content, username) {
         postId: postId,
         content: content,
         username: username,
+      },
+    });
+  });
+}
+
+async function deleteComment(commentId) {
+  await executeWithPrisma(async (prisma) => {
+    await prisma.comment.delete({
+      where: {
+        id: commentId,
       },
     });
   });
@@ -148,5 +168,7 @@ module.exports = {
   updatePost,
   deletePost,
   getComments,
+  getComment,
   addComment,
+  deleteComment,
 };

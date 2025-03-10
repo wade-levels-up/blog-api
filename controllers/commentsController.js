@@ -22,6 +22,25 @@ const getComments = asyncHandler(async (req, res) => {
   }
 });
 
+const getComment = asyncHandler(async (req, res) => {
+  try {
+    const commentId = Number(req.params.commentid);
+
+    const comment = await database.getComment(commentId);
+
+    if (!comment) {
+      throw new CustomError(`Couldn't find comment`, 404);
+    }
+
+    res.status(200).json({ comment });
+  } catch (error) {
+    throw new CustomError(
+      `Unable to get comment | ${error}`,
+      error.statusCode || 500
+    );
+  }
+});
+
 const addComment = asyncHandler(async (req, res) => {
   try {
     const postId = Number(req.params.postid);
@@ -38,4 +57,19 @@ const addComment = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getComments, addComment };
+const deleteComment = asyncHandler(async (req, res) => {
+  try {
+    const commentId = Number(req.params.commentid);
+
+    await database.deleteComment(commentId);
+
+    res.status(200).json({ message: `Deleted comment` });
+  } catch (error) {
+    throw new CustomError(
+      `Unable to delete comment | ${error}`,
+      error.statusCode || 500
+    );
+  }
+});
+
+module.exports = { getComments, getComment, addComment, deleteComment };
