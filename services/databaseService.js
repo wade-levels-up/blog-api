@@ -48,31 +48,56 @@ async function getPosts(userId) {
   });
 }
 
-async function getPost(postId) {
+async function getPublishedPosts(userId) {
+  return executeWithPrisma(async (prisma) => {
+    return await prisma.post.findMany({
+      where: {
+        userId: userId,
+        published: true,
+      },
+    });
+  });
+}
+
+async function getUnpublishedPosts(userId) {
+  return executeWithPrisma(async (prisma) => {
+    return await prisma.post.findMany({
+      where: {
+        userId: userId,
+        published: false,
+      },
+    });
+  });
+}
+
+async function getPost(postId, userId) {
   return executeWithPrisma(async (prisma) => {
     return await prisma.post.findUnique({
       where: {
         id: postId,
+        userId: userId,
       },
     });
   });
 }
 
-async function deletePost(id) {
+async function deletePost(id, userId) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.delete({
       where: {
         id: id,
+        userId: userId,
       },
     });
   });
 }
 
-async function updatePost(id, title, content, published) {
+async function updatePost(postId, title, content, published, userId) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.update({
       where: {
-        id: id,
+        id: postId,
+        userId: userId,
       },
       data: {
         title: title,
@@ -88,6 +113,8 @@ module.exports = {
   getUserById,
   addPost,
   getPosts,
+  getPublishedPosts,
+  getUnpublishedPosts,
   getPost,
   updatePost,
   deletePost,

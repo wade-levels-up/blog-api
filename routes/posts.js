@@ -1,17 +1,11 @@
 const { Router } = require("express");
-const postsRouter = Router();
-const {
-  addPost,
-  getPosts,
-  getPost,
-  deletePost,
-  updatePost,
-} = require("../controllers/postsController");
+const postsRouter = Router({ mergeParams: true });
+const postsController = require("../controllers/postsController");
 
-postsRouter.post("/", addPost);
-postsRouter.get("/", getPosts);
-postsRouter.get("/:postid", getPost);
-postsRouter.put("/", updatePost);
-postsRouter.delete("/", deletePost);
+postsRouter.post("/", postsController.addPost);
+postsRouter.get("/", postsController.getPosts);
+postsRouter.get("/:postid", postsController.getPost);
+postsRouter.put("/:postid", postsController.updatePost);
+postsRouter.delete("/:postid", postsController.deletePost);
 
 module.exports = { postsRouter };
