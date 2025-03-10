@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const { executeWithPrisma } = require("../utils/executeWithPrisma");
 const prisma = require("../utils/prismaClient");
 
+// User functions
+
 async function getUserById(id) {
   return await executeWithPrisma(async (prisma) => {
     return await prisma.user.findUnique({
@@ -24,6 +26,8 @@ async function addUser(username, password, email) {
     });
   });
 }
+
+// Post functions
 
 async function addPost(title, content, published, userId) {
   await executeWithPrisma(async (prisma) => {
@@ -108,6 +112,31 @@ async function updatePost(postId, title, content, published, userId) {
   });
 }
 
+// Comment functions
+
+async function getComments(postId) {
+  return await executeWithPrisma(async (prisma) => {
+    return await prisma.comment.findMany({
+      where: {
+        postId: postId,
+      },
+    });
+  });
+}
+
+async function addComment(userId, postId, content, username) {
+  await executeWithPrisma(async (prisma) => {
+    await prisma.comment.create({
+      data: {
+        userId: userId,
+        postId: postId,
+        content: content,
+        username: username,
+      },
+    });
+  });
+}
+
 module.exports = {
   addUser,
   getUserById,
@@ -118,4 +147,6 @@ module.exports = {
   getPost,
   updatePost,
   deletePost,
+  getComments,
+  addComment,
 };
