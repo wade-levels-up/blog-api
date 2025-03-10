@@ -14,6 +14,17 @@ const addPost = asyncHandler(async (req, res) => {
   }
 });
 
+const getPosts = asyncHandler(async (req, res) => {
+  try {
+    const userId = Number(req.body.userId);
+
+    const posts = await database.getPosts(userId);
+    res.status(200).json({ posts: posts });
+  } catch (error) {
+    throw new Error(`Unable to get posts | ${error}`);
+  }
+});
+
 const deletePost = asyncHandler(async (req, res) => {
   try {
     const postId = Number(req.body.id);
@@ -38,4 +49,4 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { addPost, updatePost, deletePost };
+module.exports = { addPost, getPosts, updatePost, deletePost };

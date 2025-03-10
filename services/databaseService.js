@@ -38,6 +38,16 @@ async function addPost(title, content, published, userId) {
   });
 }
 
+async function getPosts(userId) {
+  return executeWithPrisma(async (prisma) => {
+    return await prisma.post.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+  });
+}
+
 async function deletePost(id) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.delete({
@@ -63,4 +73,11 @@ async function updatePost(id, title, content, published) {
   });
 }
 
-module.exports = { addUser, getUserById, addPost, updatePost, deletePost };
+module.exports = {
+  addUser,
+  getUserById,
+  addPost,
+  getPosts,
+  updatePost,
+  deletePost,
+};
