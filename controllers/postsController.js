@@ -90,16 +90,20 @@ const deletePost = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
   try {
     const { title, content } = req.body;
-    const published = Boolean(req.body.published);
+    const published = req.body.published === "true";
     const postId = Number(req.params.postid);
-    const userId = Number(req.params.userid);
 
-    const post = await database.getPost(postId, userId);
-    if (!post) {
+    let posts = await database.getPosts();
+    if (req.params.userid) {
+      const userId = Number(req.params.userid);
+      posts = posts.filter((post) => post.userId === userId);
+    }
+    posts = posts.filter((post) => post.id === postId);
+    if (posts.length === 0) {
       throw new CustomError(`Can't find post`, 404);
     }
 
-    await database.updatePost(postId, title, content, published, userId);
+    await database.updatePost(postId, title, content, published);
     res.status(200).json({ message: `Updated post ID ${postId}` });
   } catch (error) {
     throw new CustomError(

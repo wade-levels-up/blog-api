@@ -58,12 +58,11 @@ async function deletePost(postId) {
   });
 }
 
-async function updatePost(postId, title, content, published, userId) {
+async function updatePost(postId, title, content, published) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.update({
       where: {
         id: postId,
-        userId: userId,
       },
       data: {
         title: title,
