@@ -7,6 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/users", routes.usersRouter);
+app.use("/posts", routes.postsRouter);
 app.use("/comments", routes.commentsRouter);
 
 app.use((error, req, res, next) => {

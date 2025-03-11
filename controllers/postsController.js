@@ -18,21 +18,38 @@ const addPost = asyncHandler(async (req, res) => {
 
 const getPosts = asyncHandler(async (req, res) => {
   try {
-    const userId = Number(req.params.userid);
+    // Get all the posts
+    let posts = await database.getPosts();
+    console.table(posts);
+    console.table(req.params);
+
+    // If a user ID is provided via params filter all posts by userID
+    if (req.params.userid) {
+      const userId = Number(req.params.userid);
+      posts = posts.filter((post) => post.userId === userId);
+    }
+
+    // If a post ID is provided via params filter all posts by postID
+    if (req.params.postid) {
+      const postId = Number(req.params.postid);
+      posts = posts.filter((post) => post.id === postId);
+    }
+
+    // If a published query is provided set the published variable
     let published;
     if (req.query.published) {
       published = req.query.published === "true";
     }
 
-    let posts;
+    // Filter posts based on whether they're posted or not
     if (published === true) {
-      posts = await database.getPublishedPosts(userId);
-    } else if (published === false) {
-      posts = await database.getUnpublishedPosts(userId);
-    } else {
-      posts = await database.getPosts(userId);
+      posts = posts.filter((post) => post.published === true);
+    }
+    if (published === false) {
+      posts = posts.filter((post) => post.published === false);
     }
 
+    // If no posts are found throw an error
     if (posts.length === 0) {
       throw new CustomError(`No published posts for user exist`, 404);
     }
@@ -41,24 +58,6 @@ const getPosts = asyncHandler(async (req, res) => {
   } catch (error) {
     throw new CustomError(
       `Unable to get posts | ${error}`,
-      error.statusCode || 500
-    );
-  }
-});
-
-const getPost = asyncHandler(async (req, res) => {
-  try {
-    const postId = Number(req.params.postid);
-    const userId = Number(req.params.userid);
-
-    const post = await database.getPost(postId, userId);
-    if (!post) {
-      throw new CustomError(`Cannot find post`, 404);
-    }
-    res.status(200).json({ post: post });
-  } catch (error) {
-    throw new CustomError(
-      `Unable to get post | ${error.message}`,
       error.statusCode || 500
     );
   }
@@ -106,4 +105,9 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { addPost, getPosts, getPost, updatePost, deletePost };
+module.exports = {
+  addPost,
+  getPosts,
+  updatePost,
+  deletePost,
+};

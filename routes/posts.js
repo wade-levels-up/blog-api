@@ -5,7 +5,7 @@ const { commentsRouter } = require("./comments");
 
 postsRouter.post("/", postsController.addPost);
 postsRouter.get("/", postsController.getPosts);
-postsRouter.get("/:postid", postsController.getPost);
+postsRouter.get("/:postid", postsController.getPosts);
 postsRouter.put("/:postid", postsController.updatePost);
 postsRouter.delete("/:postid", postsController.deletePost);
 
