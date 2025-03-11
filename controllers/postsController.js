@@ -66,15 +66,19 @@ const getPosts = asyncHandler(async (req, res) => {
 const deletePost = asyncHandler(async (req, res) => {
   try {
     const postId = Number(req.params.postid);
-    const userId = Number(req.params.userid);
 
-    const post = await database.getPost(postId, userId);
-    if (!post) {
+    let posts = await database.getPosts();
+    if (req.params.userid) {
+      const userId = Number(req.params.userid);
+      posts = posts.filter((post) => post.userId === userId);
+    }
+    posts = posts.filter((post) => post.id === postId);
+    if (posts.length === 0) {
       throw new CustomError(`Can't find post`, 404);
     }
 
-    await database.deletePost(postId, userId);
-    res.status(200).json({ message: `Deleted post: '${post.title}'` });
+    await database.deletePost(postId);
+    res.status(200).json({ message: `Deleted post: '${posts[0].title}'` });
   } catch (error) {
     throw new CustomError(
       `Unable to delete post | ${error}`,
