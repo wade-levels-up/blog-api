@@ -37,7 +37,7 @@ model Post {
 
 model Comment {
   id       Int      @id @default(autoincrement())
-  username String   @unique
+  username String
   content  String
   created  DateTime @default(now())
   Post     Post?    @relation(fields: [postId], references: [id])

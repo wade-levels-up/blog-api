@@ -157,6 +157,19 @@ async function deleteComment(commentId) {
   });
 }
 
+async function updateComment(commentId, content) {
+  await executeWithPrisma(async (prisma) => {
+    await prisma.comment.update({
+      where: {
+        id: commentId,
+      },
+      data: {
+        content: content,
+      },
+    });
+  });
+}
+
 module.exports = {
   addUser,
   getUserById,
@@ -170,5 +183,6 @@ module.exports = {
   getComments,
   getComment,
   addComment,
+  updateComment,
   deleteComment,
 };

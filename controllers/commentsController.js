@@ -44,7 +44,15 @@ const getComment = asyncHandler(async (req, res) => {
 const addComment = asyncHandler(async (req, res) => {
   try {
     const postId = Number(req.params.postid);
-    const { username, content, userId } = req.body;
+    const userId = Number(req.body.userId);
+    const content = req.body.content;
+    let username;
+    if (!userId) {
+      username = "Guest";
+    } else {
+      const user = await database.getUserById(userId);
+      username = user.username;
+    }
 
     await database.addComment(userId, postId, content, username);
 
@@ -72,4 +80,26 @@ const deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { getComments, getComment, addComment, deleteComment };
+const updateComment = asyncHandler(async (req, res) => {
+  try {
+    const commentId = Number(req.params.commentid);
+    const content = req.body.content;
+
+    await database.updateComment(commentId, content);
+
+    res.status(200).json({ message: `Updated comment` });
+  } catch (error) {
+    throw new CustomError(
+      `Unable to update comment | ${error}`,
+      error.statusCode || 500
+    );
+  }
+});
+
+module.exports = {
+  getComments,
+  getComment,
+  addComment,
+  updateComment,
+  deleteComment,
+};

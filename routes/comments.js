@@ -6,5 +6,6 @@ commentsRouter.get("/", commentsController.getComments);
 commentsRouter.get("/:commentid", commentsController.getComment);
 commentsRouter.post("/", commentsController.addComment);
 commentsRouter.delete("/:commentid", commentsController.deleteComment);
+commentsRouter.put("/:commentid", commentsController.updateComment);
 
 module.exports = { commentsRouter };
