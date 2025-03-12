@@ -36,6 +36,7 @@ passport.use(
       if (!user) {
         return done(null, false);
       }
+      user.author = jwt_payload.isAuthor;
       return done(null, user);
     } catch (error) {
       return done(error, false);

@@ -1,7 +1,8 @@
 const CustomError = require("../utils/customError");
 
 function verifyAuthor(req, res, next) {
-  if (req.user.isAuthor === false) {
+  console.table(req.user);
+  if (!req.user || req.user.author !== true) {
     return next(
       new CustomError("Access denied. Insufficient permissions.", 403)
     );
