@@ -14,6 +14,16 @@ async function getUserById(id) {
   });
 }
 
+async function getUserByName(username) {
+  return await executeWithPrisma(async (prisma) => {
+    return await prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    });
+  });
+}
+
 async function addUser(username, password, email) {
   const hashedPassword = await bcrypt.hash(password, 10);
   await executeWithPrisma(async (prisma) => {
@@ -132,6 +142,7 @@ async function updateComment(commentId, content) {
 }
 
 module.exports = {
+  getUserByName,
   addUser,
   getUserById,
   addPost,

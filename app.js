@@ -1,10 +1,13 @@
 require("dotenv").config();
 const express = require("express");
+const passport = require("./services/authService");
 const app = express();
 const routes = require("./routes/index");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use("/login", routes.loginRouter);
 
 app.use("/users", routes.usersRouter);
 app.use("/posts", routes.postsRouter);
