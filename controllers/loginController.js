@@ -15,7 +15,7 @@ function verifyLogin(req, res, next) {
       }
 
       const token = jwt.sign(
-        { id: user.id, username: user.username, isAuthor: user.isAuthor },
+        { id: user.id, username: user.username },
         process.env.JWT_SECRET,
         { expiresIn: "1hr" }
       );
