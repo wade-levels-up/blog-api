@@ -36,7 +36,10 @@ passport.use(
       if (!user) {
         return done(null, false);
       }
-      user.author = jwt_payload.isAuthor;
+      // Switch out user's isAuthor from the database value to the token value to verify by token
+      user.isAuthor = jwt_payload.isAuthor;
+      // Switch out user's id from the database value to the token value to verify by token
+      user.id = +jwt_payload.id;
       return done(null, user);
     } catch (error) {
       return done(error, false);

@@ -43,6 +43,22 @@ async function addUser(username, password, email) {
   });
 }
 
+async function updateUser(username, password, email, userId) {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await executeWithPrisma(async (prisma) => {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        username: username,
+        password: hashedPassword,
+        email: email,
+      },
+    });
+  });
+}
+
 // Post functions
 
 async function addPost(title, content, published, userId) {
@@ -150,6 +166,7 @@ async function updateComment(commentId, content) {
 module.exports = {
   getAllUsers,
   getUserByName,
+  updateUser,
   addUser,
   getUserById,
   addPost,

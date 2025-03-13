@@ -43,4 +43,16 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { addUser, getAllUsers, getUserById };
+const updateUserById = asyncHandler(async (req, res) => {
+  try {
+    const { username, password, email } = req.body;
+    const userId = +req.params.userid;
+    await database.updateUser(username, password, email, userId);
+
+    res.status(200).json({ message: `Updated user ${username}` });
+  } catch (error) {
+    throw new CustomError(`Unable to update user | ${error.message}`);
+  }
+});
+
+module.exports = { addUser, getAllUsers, getUserById, updateUserById };

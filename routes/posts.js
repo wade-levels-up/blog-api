@@ -4,7 +4,7 @@ const postsController = require("../controllers/postsController");
 const { commentsRouter } = require("./comments");
 
 const passport = require("../services/authService");
-const verifyAuthor = require("../middleware/verifyAuthor");
+const { verifyAuthor } = require("../middleware/verifier");
 
 postsRouter.post("/", postsController.addPost);
 postsRouter.get("/", postsController.getPosts);
