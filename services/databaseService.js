@@ -4,6 +4,12 @@ const prisma = require("../utils/prismaClient");
 
 // User functions
 
+async function getAllUsers() {
+  return await executeWithPrisma(async (prisma) => {
+    return await prisma.user.findMany();
+  });
+}
+
 async function getUserById(id) {
   return await executeWithPrisma(async (prisma) => {
     return await prisma.user.findUnique({
@@ -142,6 +148,7 @@ async function updateComment(commentId, content) {
 }
 
 module.exports = {
+  getAllUsers,
   getUserByName,
   addUser,
   getUserById,
