@@ -43,15 +43,26 @@ const getComment = asyncHandler(async (req, res) => {
 
 const addComment = asyncHandler(async (req, res) => {
   try {
+    const post = await database.getPostById(+req.params.postid);
+    if (post.published === false) {
+      throw new CustomError(`Cannot make comments on unpublished posts`, 403);
+    }
+
+    if (!req.user) {
+      throw new Error(
+        `Comments can only be made by users. Please sign-up to become a user`,
+        403
+      );
+    }
+
     const postId = Number(req.params.postid);
-    const userId = Number(req.body.userId);
+    const userId = Number(req.user.id);
     const content = req.body.content;
-    let username;
-    if (!userId) {
-      username = "Guest";
-    } else {
-      const user = await database.getUserById(userId);
-      username = user.username;
+    const username = req.user.username;
+
+    const user = await database.getUserById(userId);
+    if (!user) {
+      throw new CustomError(`Unable to find user`, 404);
     }
 
     await database.addComment(userId, postId, content, username);

@@ -81,6 +81,16 @@ async function getPosts() {
   });
 }
 
+async function getPostById(postId) {
+  return executeWithPrisma(async (prisma) => {
+    return await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+  });
+}
+
 async function deletePost(postId) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.delete({
@@ -172,6 +182,7 @@ module.exports = {
   getUserById,
   addPost,
   getPosts,
+  getPostById,
   updatePost,
   deletePost,
   getComments,
