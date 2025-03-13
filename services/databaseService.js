@@ -43,7 +43,7 @@ async function addUser(username, password, email) {
   });
 }
 
-async function updateUser(username, password, email, userId) {
+async function updateUser(username, password, email, isAuthor, userId) {
   const hashedPassword = await bcrypt.hash(password, 10);
   await executeWithPrisma(async (prisma) => {
     await prisma.user.update({
@@ -54,6 +54,7 @@ async function updateUser(username, password, email, userId) {
         username: username,
         password: hashedPassword,
         email: email,
+        isAuthor: isAuthor,
       },
     });
   });

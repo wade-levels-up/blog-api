@@ -46,8 +46,9 @@ const getUserById = asyncHandler(async (req, res) => {
 const updateUserById = asyncHandler(async (req, res) => {
   try {
     const { username, password, email } = req.body;
+    const isAuthor = req.body.isAuthor === "true";
     const userId = +req.params.userid;
-    await database.updateUser(username, password, email, userId);
+    await database.updateUser(username, password, email, isAuthor, userId);
 
     res.status(200).json({ message: `Updated user ${username}` });
   } catch (error) {

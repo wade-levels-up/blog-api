@@ -29,6 +29,10 @@ usersRouter.put(
   usersController.updateUserById
 );
 
-usersRouter.use("/:userid/posts", postsRouter);
+usersRouter.use(
+  "/:userid/posts",
+  passport.authenticate("jwt", { session: false }),
+  postsRouter
+);
 
 module.exports = { usersRouter };
