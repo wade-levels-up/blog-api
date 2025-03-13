@@ -5,9 +5,19 @@ const { user } = require("../utils/prismaClient");
 
 const getComments = asyncHandler(async (req, res) => {
   try {
-    const postId = Number(req.params.postid);
+    let comments = await database.getAllComments();
 
-    const comments = await database.getComments(postId);
+    if (req.params.userid) {
+      comments = comments.filter(
+        (comment) => comment.userId === +req.params.userid
+      );
+    }
+
+    if (req.params.commentid) {
+      comments = comments.filter(
+        (comment) => comment.id === +req.params.commentid
+      );
+    }
 
     if (comments.length === 0) {
       throw new CustomError(`Couldn't find any comments`, 404);

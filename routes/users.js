@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const usersRouter = Router();
 const { postsRouter } = require("./posts");
+const { commentsRouter } = require("./comments");
 const usersController = require("../controllers/usersController");
 
 const passport = require("../services/authService");
@@ -33,6 +34,12 @@ usersRouter.use(
   "/:userid/posts",
   passport.authenticate("jwt", { session: false }),
   postsRouter
+);
+
+usersRouter.use(
+  "/:userid/comments",
+  passport.authenticate("jwt", { session: false }),
+  commentsRouter
 );
 
 module.exports = { usersRouter };

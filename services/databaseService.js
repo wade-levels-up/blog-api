@@ -118,13 +118,19 @@ async function updatePost(postId, title, content, published) {
 
 // Comment functions
 
-async function getComments(postId) {
+async function getCommentsByPostId(postId) {
   return await executeWithPrisma(async (prisma) => {
     return await prisma.comment.findMany({
       where: {
         postId: postId,
       },
     });
+  });
+}
+
+async function getAllComments() {
+  return await executeWithPrisma(async (prisma) => {
+    return await prisma.comment.findMany();
   });
 }
 
@@ -185,7 +191,8 @@ module.exports = {
   getPostById,
   updatePost,
   deletePost,
-  getComments,
+  getAllComments,
+  getCommentsByPostId,
   getComment,
   addComment,
   updateComment,
