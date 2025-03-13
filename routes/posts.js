@@ -4,18 +4,26 @@ const postsController = require("../controllers/postsController");
 const { commentsRouter } = require("./comments");
 
 const passport = require("../services/authService");
-const { verifyAuthor } = require("../middleware/verifier");
+const { verifyAuthor, verifySameUser } = require("../middleware/verifier");
 
-postsRouter.post("/", postsController.addPost);
+// Routes
+
 postsRouter.get("/", postsController.getPosts);
 postsRouter.get("/:postid", postsController.getPosts);
-postsRouter.put("/:postid", postsController.updatePost);
-postsRouter.delete(
-  "/:postid",
+
+// Protected Routes
+
+// Authors can create posts for themselves
+postsRouter.post(
+  "/",
   passport.authenticate("jwt", { session: false }),
   verifyAuthor,
-  postsController.deletePost
+  verifySameUser,
+  postsController.addPost
 );
+
+postsRouter.put("/:postid", postsController.updatePost);
+postsRouter.delete("/:postid", postsController.deletePost);
 
 postsRouter.use("/:postid/comments", commentsRouter);
 

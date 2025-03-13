@@ -7,6 +7,12 @@ const addPost = asyncHandler(async (req, res) => {
     const { title, content } = req.body;
     const published = req.body.published === "false" ? false : true;
 
+    if (!req.params.userid) {
+      throw new CustomError(
+        `User ID must be supplied in path. For example: /users/6/posts, where 6 is the user ID`,
+        404
+      );
+    }
     const userId = Number(req.params.userid);
 
     await database.addPost(title, content, published, userId);
@@ -51,7 +57,7 @@ const getPosts = asyncHandler(async (req, res) => {
 
     // If no posts are found throw an error
     if (posts.length === 0) {
-      throw new CustomError(`No published posts for user exist`, 404);
+      throw new CustomError(`Couldn't find any posts`, 404);
     }
 
     res.status(200).json({ posts });
