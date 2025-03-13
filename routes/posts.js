@@ -22,8 +22,21 @@ postsRouter.post(
   postsController.addPost
 );
 
-postsRouter.put("/:postid", postsController.updatePost);
-postsRouter.delete("/:postid", postsController.deletePost);
+postsRouter.put(
+  "/:postid",
+  passport.authenticate("jwt", { session: false }),
+  verifyAuthor,
+  verifySameUser,
+  postsController.updatePost
+);
+
+postsRouter.delete(
+  "/:postid",
+  passport.authenticate("jwt", { session: false }),
+  verifyAuthor,
+  verifySameUser,
+  postsController.deletePost
+);
 
 postsRouter.use("/:postid/comments", commentsRouter);
 
