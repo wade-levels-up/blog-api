@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/login", routes.loginRouter);
+app.use("/sign-up", routes.signUpRouter);
 
 app.use("/users", routes.usersRouter);
 app.use("/posts", routes.postsRouter);
