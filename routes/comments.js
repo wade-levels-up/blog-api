@@ -18,7 +18,15 @@ commentsRouter.post(
   commentsController.addComment
 );
 
-commentsRouter.delete("/:commentid", commentsController.deleteComment);
-commentsRouter.put("/:commentid", commentsController.updateComment);
+commentsRouter.delete(
+  "/:commentid",
+  verifySameUser,
+  commentsController.deleteComment
+);
+commentsRouter.put(
+  "/:commentid",
+  verifySameUser,
+  commentsController.updateComment
+);
 
 module.exports = { commentsRouter };

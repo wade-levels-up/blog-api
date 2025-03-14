@@ -88,6 +88,10 @@ const addComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
   try {
+    if (!req.user) {
+      throw new Error(`Must be logged in as a user to delete comments`, 403);
+    }
+
     const commentId = Number(req.params.commentid);
 
     await database.deleteComment(commentId);
@@ -103,8 +107,17 @@ const deleteComment = asyncHandler(async (req, res) => {
 
 const updateComment = asyncHandler(async (req, res) => {
   try {
+    if (!req.user) {
+      throw new Error(`Must be logged in as a user to update comments`, 403);
+    }
+
     const commentId = Number(req.params.commentid);
     const content = req.body.content;
+
+    const comment = await database.getComment(commentId);
+    if (!comment) {
+      throw new Error(`Unable to find comment`, 404);
+    }
 
     await database.updateComment(commentId, content);
 

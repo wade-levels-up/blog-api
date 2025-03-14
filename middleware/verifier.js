@@ -13,16 +13,15 @@ function verifyAuthor(req, res, next) {
 }
 
 function verifySameUser(req, res, next) {
-  const userId = Number(req.user.id);
-
   if (!req.params.userid) {
     return next(
       new CustomError(
-        `User ID must be supplied in URL. For example: /users/6/posts, where 6 is the user ID`,
+        `User ID must be supplied. For example: /users/6, where 6 is the user ID`,
         400
       )
     );
   }
+  const userId = Number(req.user.id);
 
   if (!req.user || userId !== +req.params.userid) {
     return next(
