@@ -62,11 +62,12 @@ async function updateUser(username, password, email, isAuthor, userId) {
 
 // Post functions
 
-async function addPost(title, content, published, userId) {
+async function addPost(title, author, content, published, userId) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.create({
       data: {
         title: title,
+        author: author,
         content: content,
         published: published,
         userId: userId,

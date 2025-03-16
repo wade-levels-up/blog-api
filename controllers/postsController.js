@@ -15,7 +15,13 @@ const addPost = asyncHandler(async (req, res) => {
     }
     const userId = Number(req.params.userid);
 
-    await database.addPost(title, content, published, userId);
+    if (!req.user) {
+      throw new CustomError(`Must be logged in as a user to create posts`, 401); // 401 Unauthorized
+    }
+
+    const author = req.user.username;
+
+    await database.addPost(title, author, content, published, userId);
     res
       .status(200)
       .json({ message: `Added '${req.body.title}' to your posts` });

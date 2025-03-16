@@ -26,6 +26,7 @@ model User {
 
 model Post {
   id        Int       @id @default(autoincrement())
+  author    String
   title     String
   content   String
   created   DateTime  @default(now())
