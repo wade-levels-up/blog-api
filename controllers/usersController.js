@@ -32,7 +32,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 const getUserById = asyncHandler(async (req, res) => {
   try {
-    const user = await database.getUserById(+req.params.userid);
+    const user = await database.getUserById(+req.user.userid);
     if (!user) {
       throw new CustomError(`Couldn't find user`, 404);
     }
@@ -47,7 +47,7 @@ const updateUserById = asyncHandler(async (req, res) => {
   try {
     const { username, password, email } = req.body;
     const isAuthor = req.body.isAuthor === "true";
-    const userId = +req.params.userid;
+    const userId = +req.user.id;
     await database.updateUser(username, password, email, isAuthor, userId);
 
     res.status(200).json({ message: `Updated user ${username}` });

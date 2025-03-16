@@ -17,7 +17,7 @@ usersRouter.post("/", usersController.addUser);
 // Users can only update and get their own details
 
 usersRouter.get(
-  "/:userid",
+  "/:username",
   passport.authenticate("jwt", { session: false }),
   verifySameUser,
   usersController.getUserById
@@ -31,7 +31,7 @@ usersRouter.put(
 );
 
 usersRouter.use(
-  "/:userid/posts",
+  "/:username/posts",
   passport.authenticate("jwt", { session: false }),
   postsRouter
 );

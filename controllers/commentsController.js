@@ -7,9 +7,9 @@ const getComments = asyncHandler(async (req, res) => {
   try {
     let comments = await database.getAllComments();
 
-    if (req.params.userid) {
+    if (req.params.username) {
       comments = comments.filter(
-        (comment) => comment.userId === +req.params.userid
+        (comment) => comment.username === req.params.username
       );
     }
 

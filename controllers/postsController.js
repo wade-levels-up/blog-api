@@ -4,24 +4,19 @@ const CustomError = require("../utils/customError");
 
 const addPost = asyncHandler(async (req, res) => {
   try {
-    const { title, content } = req.body;
-    const published = req.body.published === "false" ? false : true;
-
-    if (!req.params.userid) {
-      throw new CustomError(
-        `User ID must be supplied in path. For example: /users/6/posts, where 6 is the user ID`,
-        400
-      );
-    }
-    const userId = Number(req.params.userid);
-
     if (!req.user) {
-      throw new CustomError(`Must be logged in as a user to create posts`, 401); // 401 Unauthorized
+      throw new CustomError(`Must be logged in as a user to create posts`, 401);
+    }
+
+    if (req.user.isAuthor === false) {
+      throw new CustomError(`Must be an author to create posts`, 401);
     }
 
     const author = req.user.username;
+    const { title, content } = req.body;
+    const published = req.body.published === "false" ? false : true;
 
-    await database.addPost(title, author, content, published, userId);
+    await database.addPost(title, author, content, published, req.user.id);
     res
       .status(200)
       .json({ message: `Added '${req.body.title}' to your posts` });
@@ -29,51 +24,6 @@ const addPost = asyncHandler(async (req, res) => {
     throw new CustomError(`Unable to create new post | ${error.message}`, 500);
   }
 });
-
-// const getPosts = asyncHandler(async (req, res) => {
-//   try {
-//     // Get all the posts
-//     let posts = await database.getPosts();
-
-//     // If a user ID is provided via params filter all posts by userID
-//     if (req.params.userid) {
-//       const userId = Number(req.params.userid);
-//       posts = posts.filter((post) => post.userId === userId);
-//     }
-
-//     // If a post ID is provided via params filter all posts by postID
-//     if (req.params.postid) {
-//       const postId = Number(req.params.postid);
-//       posts = posts.filter((post) => post.id === postId);
-//     }
-
-//     // If a published query is provided set the published variable
-//     let published;
-//     if (req.query.published) {
-//       published = req.query.published === "true";
-//     }
-
-//     // Filter posts based on whether they're posted or not
-//     if (published === true) {
-//       posts = posts.filter((post) => post.published === true);
-//     }
-//     if (published === false) {
-//       posts = posts.filter((post) => post.published === false);
-//     }
-
-//     // If no posts are found throw an error
-//     if (posts.length === 0) {
-//       throw new CustomError(`Couldn't find any posts`, 404);
-//     }
-
-//     res.status(200).json({ posts });
-//   } catch (error) {
-//     throw new CustomError(
-//       `Unable to get posts | ${error}`,
-//       error.statusCode || 500
-//     );
-//   }
-// });
 
 const getPosts = asyncHandler(async (req, res) => {
   try {
@@ -85,11 +35,21 @@ const getPosts = asyncHandler(async (req, res) => {
       posts = posts.filter((post) => post.published === true);
     }
 
-    // If there is a user object attached, return all posts if the user id is the same, or the post is published
-    if (req.user) {
-      if (+req.user.id !== +req.params.userid) {
+    if (req.params.username) {
+      if (req.user.username !== req.params.username) {
         throw new CustomError(
-          `You may only request resources that match your own ID`,
+          `You may only request posts by your own username which is '${req.user.username}'. The posts you requested were by '${req.params.username}' which doesn't match.`
+        );
+      }
+    }
+
+    // If there is a user object attached, return all posts if the user id is the same, or the post is published
+    // This makes it so a user who is an author can retrieve their own unpublished and published posts
+    if (req.user) {
+      const user = await database.getUserById(+req.user.id);
+      if (+req.user.id !== user.id) {
+        throw new CustomError(
+          `You may only request resources that belong to you`,
           403
         );
       }
@@ -98,10 +58,10 @@ const getPosts = asyncHandler(async (req, res) => {
       );
     }
 
-    // If a user ID is provided via params filter all posts by userID
-    if (req.params.userid) {
-      const userId = Number(req.params.userid);
-      posts = posts.filter((post) => post.userId === userId);
+    // If a username is provided via params filter all posts by username
+    if (req.params.username) {
+      const username = req.params.username;
+      posts = posts.filter((post) => post.author === username);
     }
 
     // If a post ID is provided via params filter all posts by postID
@@ -115,6 +75,13 @@ const getPosts = asyncHandler(async (req, res) => {
       throw new CustomError(`Couldn't find any posts`, 404);
     }
 
+    // Remove user ID from posts and return all other details
+    // Keeps user ID being returned to the client
+    posts = posts.map((post) => {
+      const { userId, ...otherDetails } = post;
+      return otherDetails;
+    });
+
     res.status(200).json({ posts });
   } catch (error) {
     throw new CustomError(
@@ -126,16 +93,16 @@ const getPosts = asyncHandler(async (req, res) => {
 
 const deletePost = asyncHandler(async (req, res) => {
   try {
+    if (!req.params.postid) {
+      return new CustomError(`Must provide ID of post to delete`);
+    }
     const postId = Number(req.params.postid);
 
+    // Check to see that the post we're trying to delete exists, if not throw an error
     let posts = await database.getPosts();
-    if (req.params.userid) {
-      const userId = Number(req.params.userid);
-      posts = posts.filter((post) => post.userId === userId);
-    }
     posts = posts.filter((post) => post.id === postId);
     if (posts.length === 0) {
-      throw new CustomError(`Can't find post`, 404);
+      throw new CustomError(`Can't find post to delete`, 404);
     }
 
     await database.deletePost(postId);
@@ -152,16 +119,16 @@ const updatePost = asyncHandler(async (req, res) => {
   try {
     const { title, content } = req.body;
     const published = req.body.published === "true";
+    if (!req.params.postid) {
+      return new CustomError(`Must provide ID of post to update`);
+    }
     const postId = Number(req.params.postid);
 
+    // Check to see that the post we're trying to update exists, if not throw an error
     let posts = await database.getPosts();
-    if (req.params.userid) {
-      const userId = Number(req.params.userid);
-      posts = posts.filter((post) => post.userId === userId);
-    }
     posts = posts.filter((post) => post.id === postId);
     if (posts.length === 0) {
-      throw new CustomError(`Can't find post`, 404);
+      throw new CustomError(`Can't find post to update`, 404);
     }
 
     await database.updatePost(postId, title, content, published);

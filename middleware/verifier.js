@@ -13,17 +13,18 @@ function verifyAuthor(req, res, next) {
 }
 
 function verifySameUser(req, res, next) {
-  if (!req.params.userid) {
+  // If no username is supplied as a param through an error
+  if (!req.params.username) {
     return next(
       new CustomError(
-        `User ID must be supplied. For example: /users/6, where 6 is the user ID`,
+        `Username must be supplied. For example: /users/john, where 'john' is the user`,
         400
       )
     );
   }
-  const userId = Number(req.user.id);
-
-  if (!req.user || userId !== +req.params.userid) {
+  // If there isn't a user logged in OR the user's username doesn't match the resource they're requesting
+  // throw an error
+  if (!req.user || req.user.username !== req.params.username) {
     return next(
       new CustomError("Access denied. Insufficient permissions.", 403)
     );
