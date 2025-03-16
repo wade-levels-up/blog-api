@@ -4,7 +4,7 @@ const CustomError = require("../utils/customError");
 
 const addUser = asyncHandler(async (req, res) => {
   try {
-    const users = database.getAllUsers();
+    const users = await database.getAllUsers();
     users.forEach((user) => {
       if (user.username === req.body.username) {
         throw new CustomError(`Username ${req.body.username} already in use`);
@@ -19,7 +19,7 @@ const addUser = asyncHandler(async (req, res) => {
       .status(200)
       .json({ message: `Added ${req.body.username} to the database` });
   } catch (error) {
-    throw new CustomError(`Unable to new user | ${error.message}`, 500);
+    throw new CustomError(`Unable to add new user | ${error.message}`, 500);
   }
 });
 
@@ -49,6 +49,21 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserByName = asyncHandler(async (req, res) => {
+  try {
+    const userData = await database.getUserByName(req.user.username);
+    if (!userData) {
+      throw new CustomError(`Couldn't find user`, 404);
+    }
+
+    const { id, password, ...user } = userData;
+
+    res.status(200).json({ user });
+  } catch (error) {
+    throw new CustomError(`Unable to get user | ${error.message}`);
+  }
+});
+
 const updateUserById = asyncHandler(async (req, res) => {
   try {
     const { username, password, email } = req.body;
@@ -62,4 +77,10 @@ const updateUserById = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { addUser, getAllUsers, getUserById, updateUserById };
+module.exports = {
+  addUser,
+  getAllUsers,
+  getUserById,
+  getUserByName,
+  updateUserById,
+};

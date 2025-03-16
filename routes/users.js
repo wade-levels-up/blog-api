@@ -16,12 +16,12 @@ usersRouter.post("/", usersController.addUser);
 // Updating users and getting user details are only accessible to users
 // Users can only update and get their own details
 
-// usersRouter.get(
-//   "/:username",
-//   passport.authenticate("jwt", { session: false }),
-//   verifySameUser,
-//   usersController.getUserById
-// );
+usersRouter.get(
+  "/:username",
+  passport.authenticate("jwt", { session: false }),
+  verifySameUser,
+  usersController.getUserByName
+);
 
 // usersRouter.put(
 //   "/:userid",
