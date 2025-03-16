@@ -4,6 +4,12 @@ const CustomError = require("../utils/customError");
 
 const addUser = asyncHandler(async (req, res) => {
   try {
+    const users = database.getAllUsers();
+    users.forEach((user) => {
+      if (user.username === req.body.username) {
+        throw new CustomError(`Username ${req.body.username} already in use`);
+      }
+    });
     await database.addUser(
       req.body.username,
       req.body.password,
