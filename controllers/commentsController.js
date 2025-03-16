@@ -23,6 +23,11 @@ const getComments = asyncHandler(async (req, res) => {
       throw new CustomError(`Couldn't find any comments`, 404);
     }
 
+    comments = comments.map((comment) => {
+      const { userId, postId, ...otherDetails } = comment;
+      return otherDetails;
+    });
+
     res.status(200).json({ comments });
   } catch (error) {
     throw new CustomError(
@@ -36,13 +41,15 @@ const getComment = asyncHandler(async (req, res) => {
   try {
     const commentId = Number(req.params.commentid);
 
-    const comment = await database.getComment(commentId);
+    let comment = await database.getComment(commentId);
 
     if (!comment) {
       throw new CustomError(`Couldn't find comment`, 404);
     }
 
-    res.status(200).json({ comment });
+    const { userId, postId, ...filteredComment } = comment;
+
+    res.status(200).json({ filteredComment });
   } catch (error) {
     throw new CustomError(
       `Unable to get comment | ${error}`,

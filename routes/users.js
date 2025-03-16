@@ -37,7 +37,7 @@ usersRouter.use(
 );
 
 usersRouter.use(
-  "/:userid/comments",
+  "/:username/comments",
   passport.authenticate("jwt", { session: false }),
   commentsRouter
 );
