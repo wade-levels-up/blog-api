@@ -94,6 +94,13 @@ async function getPostById(postId) {
 
 async function deletePost(postId) {
   await executeWithPrisma(async (prisma) => {
+    // Remove comments first
+    await prisma.comment.delete({
+      where: {
+        postId: postId,
+      },
+    });
+    // Then remove the post
     await prisma.post.delete({
       where: {
         id: postId,
