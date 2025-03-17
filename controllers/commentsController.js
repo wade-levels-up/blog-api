@@ -24,7 +24,7 @@ const getComments = asyncHandler(async (req, res) => {
     }
 
     comments = comments.map((comment) => {
-      const { userId, postId, ...otherDetails } = comment;
+      const { userId, ...otherDetails } = comment;
       return otherDetails;
     });
 
@@ -47,7 +47,7 @@ const getComment = asyncHandler(async (req, res) => {
       throw new CustomError(`Couldn't find comment`, 404);
     }
 
-    const { userId, postId, ...filteredComment } = comment;
+    const { userId, ...filteredComment } = comment;
 
     res.status(200).json({ filteredComment });
   } catch (error) {
