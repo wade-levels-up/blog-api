@@ -13,10 +13,17 @@ const addPost = asyncHandler(async (req, res) => {
     }
 
     const author = req.user.username;
-    const { title, content } = req.body;
+    const { title, summary, content } = req.body;
     const published = req.body.published === "false" ? false : true;
 
-    await database.addPost(title, author, content, published, req.user.id);
+    await database.addPost(
+      title,
+      author,
+      summary,
+      content,
+      published,
+      req.user.id
+    );
     res
       .status(200)
       .json({ message: `Added '${req.body.title}' to your posts` });
@@ -117,7 +124,7 @@ const deletePost = asyncHandler(async (req, res) => {
 
 const updatePost = asyncHandler(async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, summary, content } = req.body;
     const published = req.body.published === "true";
     if (!req.params.postid) {
       return new CustomError(`Must provide ID of post to update`);
@@ -131,7 +138,7 @@ const updatePost = asyncHandler(async (req, res) => {
       throw new CustomError(`Can't find post to update`, 404);
     }
 
-    await database.updatePost(postId, title, content, published);
+    await database.updatePost(postId, title, summary, content, published);
     res.status(200).json({ message: `Updated post ID ${postId}` });
   } catch (error) {
     throw new CustomError(

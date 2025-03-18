@@ -62,12 +62,13 @@ async function updateUser(username, password, email, isAuthor, userId) {
 
 // Post functions
 
-async function addPost(title, author, content, published, userId) {
+async function addPost(title, author, summary, content, published, userId) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.create({
       data: {
         title: title,
         author: author,
+        summary: summary,
         content: content,
         published: published,
         userId: userId,
@@ -109,7 +110,7 @@ async function deletePost(postId) {
   });
 }
 
-async function updatePost(postId, title, content, published) {
+async function updatePost(postId, title, summary, content, published) {
   await executeWithPrisma(async (prisma) => {
     await prisma.post.update({
       where: {
@@ -117,6 +118,7 @@ async function updatePost(postId, title, content, published) {
       },
       data: {
         title: title,
+        summary: summary,
         content: content,
         published: published,
       },
