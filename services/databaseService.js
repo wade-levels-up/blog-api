@@ -30,7 +30,7 @@ async function getUserByName(username) {
   });
 }
 
-async function addUser(username, password, email) {
+async function addUser(username, password, email, isAuthor) {
   const hashedPassword = await bcrypt.hash(password, 10);
   await executeWithPrisma(async (prisma) => {
     await prisma.user.create({
@@ -38,6 +38,7 @@ async function addUser(username, password, email) {
         username: username,
         password: hashedPassword,
         email: email,
+        isAuthor: isAuthor,
       },
     });
   });

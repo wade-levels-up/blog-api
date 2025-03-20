@@ -10,11 +10,14 @@ const addUser = asyncHandler(async (req, res) => {
         throw new CustomError(`Username ${req.body.username} already in use`);
       }
     });
-    await database.addUser(
-      req.body.username,
-      req.body.password,
-      req.body.email
-    );
+
+    const { username, password, email } = req.body;
+    let isAuthor = false;
+    if (req.body.isAuthor && req.body.isAuthor === "true") {
+      isAuthor = true;
+    }
+
+    await database.addUser(username, password, email, isAuthor);
     res
       .status(200)
       .json({ message: `Added ${req.body.username} to the database` });
