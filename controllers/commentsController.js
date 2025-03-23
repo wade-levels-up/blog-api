@@ -96,12 +96,29 @@ const addComment = asyncHandler(async (req, res) => {
 const deleteComment = asyncHandler(async (req, res) => {
   try {
     if (!req.user) {
-      throw new Error(`Must be logged in as a user to delete comments`, 403);
+      throw new CustomError(
+        `Must be logged in as a user to delete comments`,
+        403
+      );
     }
 
     const commentId = Number(req.params.commentid);
+    const comment = await database.getComment(commentId);
+    const post = await database.getPostById(comment.postId);
 
-    await database.deleteComment(commentId);
+    console.log(req.user.isAuthor, post.userId, req.user.id, comment.userId);
+
+    if (
+      (req.user.isAuthor && post.userId === req.user.id) ||
+      req.user.id === comment.userId
+    ) {
+      await database.deleteComment(commentId);
+    } else {
+      throw new CustomError(
+        `Can only delete own comments or comments on posts you own`,
+        403
+      );
+    }
 
     res.status(200).json({ message: `Deleted comment` });
   } catch (error) {
