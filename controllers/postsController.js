@@ -15,7 +15,6 @@ const addPost = asyncHandler(async (req, res) => {
     const author = req.user.username;
     const { title, summary, content } = req.body;
     const published = req.body.published === "false" ? false : true;
-    console.log(author, title, summary, content, published);
 
     await database.addPost(
       title,
