@@ -7,7 +7,10 @@ const addUser = asyncHandler(async (req, res) => {
     const users = await database.getAllUsers();
     users.forEach((user) => {
       if (user.username === req.body.username) {
-        throw new CustomError(`Username ${req.body.username} already in use`);
+        throw new CustomError(
+          `Username ${req.body.username} already in use`,
+          500
+        );
       }
     });
 

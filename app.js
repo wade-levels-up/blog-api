@@ -18,7 +18,7 @@ app.use("/comments", routes.commentsRouter);
 
 app.use((error, req, res, next) => {
   console.error(error);
-  res.status(error.statusCode || 500).json({ error: error.message });
+  res.status(error.statusCode || 500).json({ message: error.message });
 });
 
 const PORT = process.env.PORT;
