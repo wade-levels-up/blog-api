@@ -9,8 +9,11 @@ const addUser = asyncHandler(async (req, res) => {
       if (user.username === req.body.username) {
         throw new CustomError(
           `Username ${req.body.username} already in use`,
-          500
+          409
         );
+      }
+      if (user.email === req.body.email) {
+        throw new CustomError(`Email ${req.body.email} already in use`, 409);
       }
     });
 
