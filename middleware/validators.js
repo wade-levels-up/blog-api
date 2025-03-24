@@ -4,7 +4,9 @@ const validateUsername = [
   body("username")
     .trim()
     .isLength({ min: 3, max: 20 })
-    .withMessage("Username must be between 3 and 30 characters"),
+    .withMessage("Username must be between 3 and 30 characters")
+    .matches(/^\S+$/)
+    .withMessage("Username cannot contain spaces"),
 ];
 
 const validatePassword = [
