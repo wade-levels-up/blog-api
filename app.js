@@ -5,8 +5,16 @@ const passport = require("./services/authService");
 const app = express();
 const routes = require("./routes/index");
 
+const allowedOrigins = [process.env.CLIENT_URL, process.env.AUTHOR_CLIENT_URL];
+
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
