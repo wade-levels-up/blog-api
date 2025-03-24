@@ -1,36 +1,58 @@
 const asyncHandler = require("express-async-handler");
 const database = require("../services/databaseService");
 const CustomError = require("../utils/customError");
+const { validationResult } = require("express-validator");
+const { validatePost } = require("../middleware/validators");
 
-const addPost = asyncHandler(async (req, res) => {
-  try {
-    if (!req.user) {
-      throw new CustomError(`Must be logged in as a user to create posts`, 401);
+const addPost = [
+  validatePost,
+  asyncHandler(async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let errorMsgArr = [];
+        let errorMsgString;
+        errors.array().forEach((error) => {
+          errorMsgArr.push(error.msg);
+        });
+        errorMsgString = errorMsgArr.join(" | ");
+        throw new CustomError(`Invalid credentials | ${errorMsgString}`);
+      }
+
+      if (!req.user) {
+        throw new CustomError(
+          `Must be logged in as a user to create posts`,
+          401
+        );
+      }
+
+      if (req.user.isAuthor === false) {
+        throw new CustomError(`Must be an author to create posts`, 401);
+      }
+
+      const author = req.user.username;
+      const { title, summary, content } = req.body;
+      const published = req.body.published === "false" ? false : true;
+
+      await database.addPost(
+        title,
+        author,
+        summary,
+        content,
+        published,
+        req.user.id
+      );
+      res
+        .status(200)
+        .json({ message: `Added '${req.body.title}' to your posts` });
+    } catch (error) {
+      throw new CustomError(
+        `Unable to create new post | ${error.message}`,
+        500
+      );
     }
-
-    if (req.user.isAuthor === false) {
-      throw new CustomError(`Must be an author to create posts`, 401);
-    }
-
-    const author = req.user.username;
-    const { title, summary, content } = req.body;
-    const published = req.body.published === "false" ? false : true;
-
-    await database.addPost(
-      title,
-      author,
-      summary,
-      content,
-      published,
-      req.user.id
-    );
-    res
-      .status(200)
-      .json({ message: `Added '${req.body.title}' to your posts` });
-  } catch (error) {
-    throw new CustomError(`Unable to create new post | ${error.message}`, 500);
-  }
-});
+  }),
+];
 
 const getPosts = asyncHandler(async (req, res) => {
   try {

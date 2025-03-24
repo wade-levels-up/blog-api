@@ -1,36 +1,58 @@
 const asyncHandler = require("express-async-handler");
 const database = require("../services/databaseService");
 const CustomError = require("../utils/customError");
+const { validationResult } = require("express-validator");
+const {
+  validateUsername,
+  validatePassword,
+  validateEmail,
+} = require("../middleware/validators");
 
-const addUser = asyncHandler(async (req, res) => {
-  try {
-    const users = await database.getAllUsers();
-    users.forEach((user) => {
-      if (user.username === req.body.username) {
-        throw new CustomError(
-          `Username ${req.body.username} already in use`,
-          409
-        );
+const addUser = [
+  validateUsername,
+  validatePassword,
+  validateEmail,
+  asyncHandler(async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let errorMsgArr = [];
+        let errorMsgString;
+        errors.array().forEach((error) => {
+          errorMsgArr.push(error.msg);
+        });
+        errorMsgString = errorMsgArr.join(" | ");
+        throw new CustomError(`Invalid credentials | ${errorMsgString}`);
       }
-      if (user.email === req.body.email) {
-        throw new CustomError(`Email ${req.body.email} already in use`, 409);
-      }
-    });
 
-    const { username, password, email } = req.body;
-    let isAuthor = false;
-    if (req.body.isAuthor && req.body.isAuthor === "true") {
-      isAuthor = true;
+      const users = await database.getAllUsers();
+      users.forEach((user) => {
+        if (user.username === req.body.username) {
+          throw new CustomError(
+            `Username ${req.body.username} already in use`,
+            409
+          );
+        }
+        if (user.email === req.body.email) {
+          throw new CustomError(`Email ${req.body.email} already in use`, 409);
+        }
+      });
+
+      const { username, password, email } = req.body;
+      let isAuthor = false;
+      if (req.body.isAuthor && req.body.isAuthor === "true") {
+        isAuthor = true;
+      }
+
+      await database.addUser(username, password, email, isAuthor);
+      res
+        .status(200)
+        .json({ message: `Added ${req.body.username} to the database` });
+    } catch (error) {
+      throw new CustomError(`Unable to add new user | ${error.message}`, 500);
     }
-
-    await database.addUser(username, password, email, isAuthor);
-    res
-      .status(200)
-      .json({ message: `Added ${req.body.username} to the database` });
-  } catch (error) {
-    throw new CustomError(`Unable to add new user | ${error.message}`, 500);
-  }
-});
+  }),
+];
 
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
