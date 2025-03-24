@@ -144,31 +144,45 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 });
 
-const updatePost = asyncHandler(async (req, res) => {
-  try {
-    const { title, summary, content } = req.body;
-    const published = req.body.published === "true";
-    if (!req.params.postid) {
-      return new CustomError(`Must provide ID of post to update`);
-    }
-    const postId = Number(req.params.postid);
+const updatePost = [
+  validatePost,
+  asyncHandler(async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let errorMsgArr = [];
+        let errorMsgString;
+        errors.array().forEach((error) => {
+          errorMsgArr.push(error.msg);
+        });
+        errorMsgString = errorMsgArr.join(" | ");
+        throw new CustomError(`Invalid credentials | ${errorMsgString}`);
+      }
 
-    // Check to see that the post we're trying to update exists, if not throw an error
-    let posts = await database.getPosts();
-    posts = posts.filter((post) => post.id === postId);
-    if (posts.length === 0) {
-      throw new CustomError(`Can't find post to update`, 404);
-    }
+      const { title, summary, content } = req.body;
+      const published = req.body.published === "true";
+      if (!req.params.postid) {
+        return new CustomError(`Must provide ID of post to update`);
+      }
+      const postId = Number(req.params.postid);
 
-    await database.updatePost(postId, title, summary, content, published);
-    res.status(200).json({ message: `Updated post ID ${postId}` });
-  } catch (error) {
-    throw new CustomError(
-      `Unable to update post | ${error}`,
-      error.statusCode || 500
-    );
-  }
-});
+      // Check to see that the post we're trying to update exists, if not throw an error
+      let posts = await database.getPosts();
+      posts = posts.filter((post) => post.id === postId);
+      if (posts.length === 0) {
+        throw new CustomError(`Can't find post to update`, 404);
+      }
+
+      await database.updatePost(postId, title, summary, content, published);
+      res.status(200).json({ message: `Updated post ID ${postId}` });
+    } catch (error) {
+      throw new CustomError(
+        `Unable to update post | ${error}`,
+        error.statusCode || 500
+      );
+    }
+  }),
+];
 
 module.exports = {
   addPost,

@@ -1,7 +1,8 @@
 const asyncHandler = require("express-async-handler");
 const database = require("../services/databaseService");
 const CustomError = require("../utils/customError");
-const { user } = require("../utils/prismaClient");
+const { validationResult } = require("express-validator");
+const { validateComment } = require("../middleware/validators");
 
 const getComments = asyncHandler(async (req, res) => {
   try {
@@ -58,40 +59,54 @@ const getComment = asyncHandler(async (req, res) => {
   }
 });
 
-const addComment = asyncHandler(async (req, res) => {
-  try {
-    const post = await database.getPostById(+req.params.postid);
-    if (post.published === false) {
-      throw new CustomError(`Cannot make comments on unpublished posts`, 403);
-    }
+const addComment = [
+  validateComment,
+  asyncHandler(async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let errorMsgArr = [];
+        let errorMsgString;
+        errors.array().forEach((error) => {
+          errorMsgArr.push(error.msg);
+        });
+        errorMsgString = errorMsgArr.join(" | ");
+        throw new CustomError(`Invalid entry | ${errorMsgString}`);
+      }
 
-    if (!req.user) {
-      throw new Error(
-        `Comments can only be made by users. Please sign-up to become a user`,
-        403
+      const post = await database.getPostById(+req.params.postid);
+      if (post.published === false) {
+        throw new CustomError(`Cannot make comments on unpublished posts`, 403);
+      }
+
+      if (!req.user) {
+        throw new Error(
+          `Comments can only be made by users. Please sign-up to become a user`,
+          403
+        );
+      }
+
+      const postId = Number(req.params.postid);
+      const userId = Number(req.user.id);
+      const content = req.body.content;
+      const username = req.user.username;
+
+      const user = await database.getUserById(userId);
+      if (!user) {
+        throw new CustomError(`Unable to find user`, 404);
+      }
+
+      await database.addComment(userId, postId, content, username);
+
+      res.status(200).json({ message: `Added comment by ${username} to post` });
+    } catch (error) {
+      throw new CustomError(
+        `Unable to add comment | ${error}`,
+        error.statusCode || 500
       );
     }
-
-    const postId = Number(req.params.postid);
-    const userId = Number(req.user.id);
-    const content = req.body.content;
-    const username = req.user.username;
-
-    const user = await database.getUserById(userId);
-    if (!user) {
-      throw new CustomError(`Unable to find user`, 404);
-    }
-
-    await database.addComment(userId, postId, content, username);
-
-    res.status(200).json({ message: `Added comment by ${username} to post` });
-  } catch (error) {
-    throw new CustomError(
-      `Unable to add comment | ${error}`,
-      error.statusCode || 500
-    );
-  }
-});
+  }),
+];
 
 const deleteComment = asyncHandler(async (req, res) => {
   try {
@@ -129,30 +144,44 @@ const deleteComment = asyncHandler(async (req, res) => {
   }
 });
 
-const updateComment = asyncHandler(async (req, res) => {
-  try {
-    if (!req.user) {
-      throw new Error(`Must be logged in as a user to update comments`, 403);
+const updateComment = [
+  validateComment,
+  asyncHandler(async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        let errorMsgArr = [];
+        let errorMsgString;
+        errors.array().forEach((error) => {
+          errorMsgArr.push(error.msg);
+        });
+        errorMsgString = errorMsgArr.join(" | ");
+        throw new CustomError(`Invalid entry | ${errorMsgString}`);
+      }
+
+      if (!req.user) {
+        throw new Error(`Must be logged in as a user to update comments`, 403);
+      }
+
+      const commentId = Number(req.params.commentid);
+      const content = req.body.content;
+
+      const comment = await database.getComment(commentId);
+      if (!comment) {
+        throw new Error(`Unable to find comment`, 404);
+      }
+
+      await database.updateComment(commentId, content);
+
+      res.status(200).json({ message: `Updated comment` });
+    } catch (error) {
+      throw new CustomError(
+        `Unable to update comment | ${error}`,
+        error.statusCode || 500
+      );
     }
-
-    const commentId = Number(req.params.commentid);
-    const content = req.body.content;
-
-    const comment = await database.getComment(commentId);
-    if (!comment) {
-      throw new Error(`Unable to find comment`, 404);
-    }
-
-    await database.updateComment(commentId, content);
-
-    res.status(200).json({ message: `Updated comment` });
-  } catch (error) {
-    throw new CustomError(
-      `Unable to update comment | ${error}`,
-      error.statusCode || 500
-    );
-  }
-});
+  }),
+];
 
 module.exports = {
   getComments,
