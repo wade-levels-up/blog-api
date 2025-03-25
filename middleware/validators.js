@@ -60,7 +60,7 @@ const validateComment = [
     .withMessage("Comment must be between 2 and 1000 characters"),
   body("content").notEmpty().withMessage("Comment content cannot be empty"),
   body("content")
-    .matches(/^[a-zA-Z0-9\s.,!?]*$/)
+    .matches(/^[a-zA-Z0-9\s.,!?'"]*$/)
     .withMessage("Comment content contains invalid characters"),
   body("content")
     .custom((comment) => {
