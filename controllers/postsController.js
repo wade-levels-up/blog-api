@@ -31,7 +31,7 @@ const addPost = [
       }
 
       const author = req.user.username;
-      const { title, summary, content } = req.body;
+      const { title, summary, content, image } = req.body;
       const published = req.body.published === "false" ? false : true;
 
       await database.addPost(
@@ -39,6 +39,7 @@ const addPost = [
         author,
         summary,
         content,
+        image,
         published,
         req.user.id
       );
@@ -159,7 +160,7 @@ const updatePost = [
         throw new CustomError(`Invalid credentials | ${errorMsgString}`);
       }
 
-      const { title, summary, content } = req.body;
+      const { title, summary, content, image } = req.body;
       const published = req.body.published === "true";
       if (!req.params.postid) {
         return new CustomError(`Must provide ID of post to update`);
@@ -173,7 +174,14 @@ const updatePost = [
         throw new CustomError(`Can't find post to update`, 404);
       }
 
-      await database.updatePost(postId, title, summary, content, published);
+      await database.updatePost(
+        postId,
+        title,
+        summary,
+        content,
+        image,
+        published
+      );
       res.status(200).json({ message: `Updated post ID ${postId}` });
     } catch (error) {
       throw new CustomError(

@@ -30,6 +30,7 @@ model Post {
   title     String
   summary   String
   content   String
+  image     String    @default("")
   created   DateTime  @default(now())
   published Boolean   @default(false)
   User      User?     @relation(fields: [userId], references: [id])

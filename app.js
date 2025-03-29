@@ -5,7 +5,12 @@ const passport = require("./services/authService");
 const app = express();
 const routes = require("./routes/index");
 
-const allowedOrigins = [process.env.client1, process.env.client2];
+const allowedOrigins = [
+  process.env.client1,
+  process.env.client2,
+  process.env.LOCAL_HOST_URL1,
+  process.env.LOCAL_HOST_URL2,
+];
 
 const corsOptions = {
   origin: (origin, callback) => {
