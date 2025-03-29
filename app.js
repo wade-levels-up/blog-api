@@ -9,6 +9,8 @@ const allowedOrigins = [process.env.PROXY];
 
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log("Incoming request origin:", origin); // Logs the origin
+    console.log("Incoming request path:", this.req?.path); // Logs the path of the request
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
@@ -17,6 +19,7 @@ const corsOptions = {
   },
   optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
 
 app.use(express.json());
