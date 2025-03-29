@@ -5,7 +5,7 @@ const passport = require("./services/authService");
 const app = express();
 const routes = require("./routes/index");
 
-const allowedOrigins = [process.env.PROXY];
+const allowedOrigins = [process.env.client1, process.env.client2];
 
 const corsOptions = {
   origin: (origin, callback) => {
